@@ -1,12 +1,36 @@
 import subprocess
 import time
+import sys
 
-
-def get_wifi_strength():
+def get_wifi_strength_macos():
     result = subprocess.run(["/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport", "-I"], capture_output=True, text=True)
     for line in result.stdout.split('\n'):
         if 'agrCtlRSSI' in line:
             return int(line.split(':')[1].strip())
+
+def get_wifi_strength_linux():
+    interfaces_result = subprocess.run(["iw", "dev"], capture_output=True, text=True)
+    interfaces = [line.split()[1] for line in interfaces_result.stdout.split("\n") if "Interface" in line]
+
+    for interface in interfaces:
+        iw_output = subprocess.run(["iw", "dev", interface, "link"], capture_output=True, text=True)
+        if "Connected" not in iw_output.stdout or "signal" not in iw_output.stdout:
+            continue
+        signal = [line.split(":")[1] for line in iw_output.stdout.split("\n") if "signal" in line]
+        # Return only the first connected interface
+        return int(signal[0].strip().split(" ")[0])
+
+    print("No connected interface found")
+    exit(1)
+
+def get_wifi_strength():
+    if sys.platform == "darwin":
+        return get_wifi_strength_macos()
+    elif sys.platform == "linux":
+        return get_wifi_strength_linux()
+    else:
+        print(f"Platform '{sys.platform}' is not supported")
+        exit(1)
 
 
 def categorize_strength(strength):
