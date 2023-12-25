@@ -35,11 +35,13 @@ For example:
 ## Requirements
 
 - Python 3
-- macOS (as it uses a macOS-specific command to measure WiFi strength)
+- macOS or Linux
+- iw on Linux (see https://wireless.wiki.kernel.org/en/users/documentation/iw)
 
 ## Author
 
 Jiri Knesl <jiri@flexiana.com>
+Jame Ender (https://github.com/JameEnder)
 
 ## License
 
